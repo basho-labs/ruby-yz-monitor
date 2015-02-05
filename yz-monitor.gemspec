@@ -6,8 +6,8 @@ require './lib/yz-monitor/version'
 Gem::Specification.new do |spec|
   spec.name          = "yz-monitor"
   spec.version       = Riak::Yokozuna::Monitor::VERSION
-  spec.authors       = ["Bryce Kerley"]
-  spec.email         = ["bkerley@brycekerley.net"]
+  spec.authors       = ["Bryce Kerley", "Drew Kerrigan"]
+  spec.email         = ["bkerley@brycekerley.net", "dr.kerrigan@gmail.com"]
   spec.summary       = %q{Sensu-style monitoring tools for Riak Search 2}
   spec.description   = %q{Sensu-style monitoring tools for Riak Search 2}
   spec.homepage      = ""
