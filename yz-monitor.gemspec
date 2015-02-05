@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
 
   spec.add_dependency 'riak-client', '2.2.0.pre1'
-  spec.add_dependency 'sensu-plugin', '~> 1.1.0''
+  spec.add_dependency 'sensu-plugin', '~> 1.1.0'
 end
