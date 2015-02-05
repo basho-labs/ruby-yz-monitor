@@ -1,6 +1,11 @@
-require "./version"
+require "yz-monitor/version"
 require 'riak'
+require 'riak/search'
 
-module Riak::Yokozuna::Monitor
-  # Your code goes here...
+module Riak
+  module Yokozuna
+    module Monitor
+      # Your code goes here...
+    end
+  end
 end

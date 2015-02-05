@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+require 'sensu-plugin/check/cli'
+require 'yz-monitor'
+
+class YzErrorSensu < Sensu::Plugin::Check::CLI
+  option :warn,
+         short: '-w WARN',
+         long: '--warn WARN',
+         proc: ->(a){ a.to_i },
+         default: 10,
+         description: 'The number of errors that trigger a warning.'
+
+  option :crit,
+         short: '-c CRIT',
+         long: '--crit CRIT',
+         proc: ->(a){ a.to_i },
+         default: 100,
+         description: 'The number of errors that trigger a critical warning.'
+
+  option :host,
+         short: '-h HOST',
+         long: '--host HOST',
+         description: 'The Riak host to connect to.'
+
+  option :port,
+         short: '-p PORT',
+         long: '--port PORT',
+         proc: ->(a){ a.to_i },
+         default: 8098,
+         description: 'The Protocol Buffers port on the Riak host to query.'
+
+  option :index,
+         short: '-i INDEX',
+         long: '--index INDEX',
+         default: 'yz_err',
+         description: 'The index to query'
+
+  option :query,
+         short: '-q QUERY',
+         long: '--query QUERY',
+         default: '*:*',
+         description: 'The query to perform'
+
+  def run
+    count = results.num_found
+    message = "#{count} results returned"
+    return critical message if count > config[:crit]
+    return warning message if count > config[:warn]
+    ok message
+  end
+
+  private
+
+  def client
+    @client ||= Riak::Client.new host: config[:host], pb_port: config[:port]
+  end
+
+  def index
+    @index ||= Riak::Search::Index.new client, config[:index]
+  end
+
+  def query
+    @query ||= Riak::Search::Query.new(client,
+                                       index,
+                                       config[:query]).tap do |q|
+      q.rows = 0
+    end
+  end
+
+  def results
+    query.results
+  end
+end
