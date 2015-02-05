@@ -1,5 +1,6 @@
 require "./version"
+require 'riak'
 
-module .
+module Riak::Yokozuna::Monitor
   # Your code goes here...
 end
