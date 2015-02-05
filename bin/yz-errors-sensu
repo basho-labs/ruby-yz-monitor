@@ -3,18 +3,22 @@
 require 'sensu-plugin/check/cli'
 require 'yz-monitor'
 
+# This class is a command-line sensu check for running a query against a Riak
+# Search 2 / "Yokozuna" / "yz" index, and producing warning/critical warnings
+# on different numbers of results. It is intended to be used with the yz_err
+# index provided by https://github.com/basho-labs/yokozuna_error_patch
 class YzErrorSensu < Sensu::Plugin::Check::CLI
   option :warn,
          short: '-w WARN',
          long: '--warn WARN',
-         proc: ->(a){ a.to_i },
+         proc: ->(a) { a.to_i },
          default: 10,
          description: 'The number of errors that trigger a warning.'
 
   option :crit,
          short: '-c CRIT',
          long: '--crit CRIT',
-         proc: ->(a){ a.to_i },
+         proc: ->(a) { a.to_i },
          default: 100,
          description: 'The number of errors that trigger a critical warning.'
 
@@ -26,7 +30,7 @@ class YzErrorSensu < Sensu::Plugin::Check::CLI
   option :port,
          short: '-p PORT',
          long: '--port PORT',
-         proc: ->(a){ a.to_i },
+         proc: ->(a) { a.to_i },
          default: 8098,
          description: 'The Protocol Buffers port on the Riak host to query.'
 
@@ -43,14 +47,39 @@ class YzErrorSensu < Sensu::Plugin::Check::CLI
          description: 'The query to perform'
 
   def run
-    count = results.num_found
+    validate_options
     message = "#{count} results returned"
-    return critical message if count > config[:crit]
-    return warning message if count > config[:warn]
-    ok message
+    case count
+    when (0...config[:warn])
+      ok message
+    when (config[:warn]...config[:crit])
+      warning message
+    else
+      critical message
+    end
   end
 
   private
+
+  def validate_options
+    if config[:warn] > config[:crit]
+      unknown "Warning threshold #{config[:warn]}"\
+              "greater than critical threshold #{config[:crit]}"
+    end
+
+    ping_server
+
+    unknown "Index #{config[:index]} doesn't exist" unless index.exists?
+  end
+
+  def ping_server
+    begin
+      result = client.ping
+      unknown "Riak ping returned false" unless result
+    rescue => e
+      unknown "#{e.inspect} when attempting to ping with #{client.inspect}"
+    end
+  end
 
   def client
     @client ||= Riak::Client.new host: config[:host], pb_port: config[:port]
@@ -70,5 +99,9 @@ class YzErrorSensu < Sensu::Plugin::Check::CLI
 
   def results
     query.results
+  end
+
+  def count
+    results.num_found
   end
 end
