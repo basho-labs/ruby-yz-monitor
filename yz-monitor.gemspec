@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["bkerley@brycekerley.net", "dr.kerrigan@gmail.com"]
   spec.summary       = %q{Sensu-style monitoring tools for Riak Search 2}
   spec.description   = %q{Sensu-style monitoring tools for Riak Search 2}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/basho-labs/ruby-yz-monitor"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
