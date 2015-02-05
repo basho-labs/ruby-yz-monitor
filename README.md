@@ -31,11 +31,30 @@ Or install it yourself as:
 
 ## Usage
 
-The command-line `yz-monitor-errors` application takes a hostname or IP address,
-a port number, and an index name to look for `_yz_err` fields in:
+The command-line `yz-monitor-errors` application is the original interface:
+
+```
+Usage: bin/yz-errors-sensu (options)
+    -c, --crit CRIT                  The number of errors that trigger a critical warning.
+    -h, --host HOST                  The Riak host to connect to.
+    -i, --index INDEX                The index to query
+    -p, --port PORT                  The Protocol Buffers port on the Riak host to query.
+    -q, --query QUERY                The query to perform
+    -w, --warn WARN                  The number of errors that trigger a warning.
+```
+
+The command-line tool has several error/unknown conditions, evaluated in this
+order:
+
+1. If the warning threshold is greater than the critical threshold, the check
+will fail before attempting to connect to Riak.
+2. If the Riak server cannot is not ping-able (due to a failed connection or
+other misconfiguration), the check will fail.
+3. If the Riak server does not have the specified index ('yz_err' is the
+default), the check will fail.
 
 ```sh
-yz-monitor-errors 127.0.0.1 17017 yz_err
+yz-monitor-errors -w 1 -c 100 -i yz_err 127.0.0.1 17017
 ```
 
 For different checks, write a small Ruby script:
@@ -46,8 +65,9 @@ require 'yz-monitor'
 c = Riak::Client.new pb_port: 17017
 i = Riak::Search::Index.new c, 'yz_err'
 q = Riak::Search::Query.new c, i, '*:*'
-m = Riak::Yokozuna::Monitor.new c, q
-m.asdfasdfasdf
+q.rows = 0 # we care about the total results found, not the actual results
+case q.results.num_found
+when (0..10) ...
 ```
 
 ## Contributing
