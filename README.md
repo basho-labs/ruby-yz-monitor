@@ -57,6 +57,22 @@ default), the check will fail.
 yz-errors-sensu -w 1 -c 100 -i yz_err -h 127.0.0.1 -p 8087 -q '*:*'
 ```
 
+Example Sensu Check Definition
+
+```
+{
+  "checks": {
+    "chef_client": {
+      "command": "yz-errors-sensu -w 1 -c 100 -i yz_err -h 127.0.0.1 -p 8087 -q '*:*'",
+      "subscribers": [
+        "production"
+      ],
+      "interval": 60
+    }
+  }
+}
+```
+
 For different checks, write a small Ruby script:
 
 ```ruby
