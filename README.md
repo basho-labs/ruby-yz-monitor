@@ -31,7 +31,7 @@ Or install it yourself as:
 
 ## Usage
 
-The command-line `yz-monitor-errors` application is the original interface:
+The command-line `yz-errors-sensu` application is the original interface:
 
 ```
 Usage: bin/yz-errors-sensu (options)
@@ -54,7 +54,7 @@ other misconfiguration), the check will fail.
 default), the check will fail.
 
 ```sh
-yz-monitor-errors -w 1 -c 100 -i yz_err 127.0.0.1 17017
+yz-errors-sensu -w 1 -c 100 -i yz_err -h 127.0.0.1 -p 8087 -q '*:*'
 ```
 
 For different checks, write a small Ruby script:
@@ -62,7 +62,7 @@ For different checks, write a small Ruby script:
 ```ruby
 require 'yz-monitor'
 
-c = Riak::Client.new pb_port: 17017
+c = Riak::Client.new pb_port: 8087
 i = Riak::Search::Index.new c, 'yz_err'
 q = Riak::Search::Query.new c, i, '*:*'
 q.rows = 0 # we care about the total results found, not the actual results
